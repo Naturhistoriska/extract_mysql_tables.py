@@ -31,12 +31,11 @@ Installation
 ------------
 
 The project is hosted at `<https://github.com/naturhistoriska/extract_mysql_tables.py>`
-and can be installed using git:
+and can be downloaded using git:
 
 .. code-block::
 
     $ git clone https://github.com/naturhistoriska/extract_mysql_tables.py
-    $ cd extract_mysql_tables
 
 
 Usage
