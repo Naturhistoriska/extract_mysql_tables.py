@@ -89,7 +89,7 @@ class StoreExpandedPath(argparse.Action):
 
 
 def table_to_tsv(conn, table_name, output_filepath):
-    """Export table to a TSV file named after the table."""
+    """Export table to a TSV file."""
     cursor = conn.cursor()
     cursor.execute('select * from ' + table_name + ';')
     with open(output_filepath, 'w', newline='') as csv_file:
