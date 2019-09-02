@@ -18,7 +18,7 @@ import pymysql
 
 __author__ = 'Markus Englund'
 __license__ = 'MIT'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 def main(args=None):
@@ -37,7 +37,7 @@ def main(args=None):
 
     try:
         if parser.tablefile_filepath is None:
-            table_list = list_all_tables(mysql_connection)
+            table_list = list_all_tables(mysql_connection, parser.table_type)
         else:
             table_list = read_file_into_list(parser.tablefile_filepath)
 
@@ -68,6 +68,12 @@ def parse_args(args):
         dest='host', help='database host (default: "localhost")')
     parser.add_argument('database', action='store', help='database name')
     parser.add_argument(
+        '--table-type', type=int, action=StoreTableTypeName,
+        choices=range(1, 4), default=None, help=(
+            'Table type to include in export: 1=BASE TABLE; 2=VIEW; '
+            '3=SYSTEM VIEW (i.e. INFORMATION_SCHEMA table). The table type '
+            'will be ignored if there is a file provided with table names.'))
+    parser.add_argument(
         '-o', '--output-dir', dest='output_dirpath', type=is_directory,
         action=StoreExpandedPath, default=os.getcwd(), metavar='DIR',
         help='path to the output directory (default: current directory)')
@@ -88,8 +94,18 @@ class StoreExpandedPath(argparse.Action):
             setattr(namespace, self.dest, filepath)
 
 
+class StoreTableTypeName(argparse.Action):
+    """Store the table type name based on a given integer."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if values:
+            d = dict(zip(range(1, 4), ['BASE TABLE', 'VIEW', 'SYSTEM VIEW']))
+            table_type = d[values]
+            setattr(namespace, self.dest, table_type)
+
+
 def table_to_tsv(conn, table_name, output_filepath):
-    """Export table to a TSV file named after the table."""
+    """Export table to a TSV file."""
     cursor = conn.cursor()
     cursor.execute('select * from ' + table_name + ';')
     with open(output_filepath, 'w', newline='') as csv_file:
@@ -116,11 +132,17 @@ def is_file(filename):
         return filename
 
 
-def list_all_tables(conn):
+def list_all_tables(conn, table_type=None):
     """Return a list with names of all tables in the database."""
+    if table_type is not None:
+        sql_query = (
+            "show full tables where TABLE_TYPE = '{}';"
+            .format(table_type))
+    else:
+        sql_query = 'show full tables;'
     cursor = conn.cursor()
-    cursor.execute('show tables;')
-    return [name for (name,) in cursor]
+    cursor.execute(sql_query)
+    return [name for (name, _) in cursor]
 
 
 def read_file_into_list(filepath):

@@ -42,10 +42,10 @@ Usage
 -----
 
 .. code-block::
-    
+
     ./extract_mysql_tables.py --help
     usage: extract_mysql_tables.py [-h] [-V] [-u USER] [-p PASSWORD] [--host HOST]
-                                   [-o DIR]
+                                   [--table-type {1,2,3}] [-o DIR]
                                    database [table-file]
 
     Command-line utility for exporting tables from a MySQL database to files in
@@ -63,6 +63,10 @@ Usage
       -p PASSWORD, --password PASSWORD
                             MySQL password
       --host HOST           database host (default: "localhost")
+      --table-type {1,2,3}  Table type to include in export: 1=BASE TABLE; 2=VIEW;
+                            3=SYSTEM VIEW (i.e. INFORMATION_SCHEMA table). The
+                            table type will be ignored if there is a file provided
+                            with table names.
       -o DIR, --output-dir DIR
                             path to the output directory (default: current
                             directory)
@@ -88,7 +92,7 @@ License
 `MIT license <https://opensource.org/licenses/MIT>`_.
 
 
-Author
-------
+Author and maintainer
+---------------------
 
 Markus Englund, markus.englund@nrm.se
